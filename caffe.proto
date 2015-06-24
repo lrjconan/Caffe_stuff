@@ -440,16 +440,18 @@ message ConvolutionParameter {
     CAFFE = 1;
     CUDNN = 2;
   }
+  optional Engine engine = 15 [default = DEFAULT];
+  // added by Renjie
   enum RotateMode {
     MAX_NORM = 0;
     RAND = 1;
-  }  
-  optional Engine engine = 15 [default = DEFAULT];
-  // added by Renjie
+  }   
   optional bool init_from_file = 16 [default = false];
   optional string file_name = 17;
   optional uint32 num_rotate = 18;
-  optional RotateMode rotate_mode = 19 [default = RAND];
+  optional float min_angle = 19;
+  optional float max_angle = 20;
+  optional RotateMode rotate_mode = 21 [default = RAND];
 }
 
 message DataParameter {
