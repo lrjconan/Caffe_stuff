@@ -112,14 +112,7 @@ void BaseConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
   
   // added by Renjie
   init_from_file_ 	= conv_param.init_from_file();
-  file_name_ 		= conv_param.file_name();    
-  num_rotate_ 		= conv_param.num_rotate();
-  rotate_angle_.resize(num_rotate_);
-  
-  rotate_angle_[0] = .0;
-  for (int i = 1; i < num_rotate_; ++i) {
-		rotate_angle_[i] = rotate_angle_[i-1] + 360.0 / static_cast<Dtype>(num_rotate_);
-  }
+  file_name_ 		= conv_param.file_name();
   
   bias_term_ = this->layer_param_.convolution_param().bias_term();
   if (this->blobs_.size() > 0) {
