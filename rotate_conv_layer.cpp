@@ -147,7 +147,7 @@ void RotateConvolutionLayer<Dtype>::Convolution_cpu(const vector<Blob<Dtype>*>& 
 
 template <typename Dtype>
 void RotateConvolutionLayer<Dtype>::MaxResponse_cpu(const vector<Blob<Dtype>*>& top) {
-  int idx_max 				= -1;
+  int idx_max 			= -1;
   double max_response_norm 	= .0;
 
   // return the maximum response of rotational filters
