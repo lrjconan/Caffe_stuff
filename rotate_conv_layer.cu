@@ -33,8 +33,8 @@ void RotateConvolutionLayer<Dtype>::Convolution_gpu(const vector<Blob<Dtype>*>& 
 
 template <typename Dtype>
 void RotateConvolutionLayer<Dtype>::MaxResponse_gpu(const vector<Blob<Dtype>*>& top) {
-  int idx_max 				= -1;
-  double max_response_norm 	= .0;
+  int idx_max = -1;
+  double max_response_norm = .0;
 
   // return the maximum response of rotational filters
   for (int r = 0; r < num_rotate_; ++r) {  
@@ -48,8 +48,8 @@ void RotateConvolutionLayer<Dtype>::MaxResponse_gpu(const vector<Blob<Dtype>*>& 
 	}
 	
 	if (response_norm > max_response_norm) {
-		idx_max 			= r;
-		max_response_norm 	= response_norm;
+		idx_max = r;
+		max_response_norm = response_norm;
 	}	
   }
   
