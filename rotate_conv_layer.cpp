@@ -21,18 +21,27 @@ void RotateConvolutionLayer<Dtype>::LayerSetUp(
   // initialize member variables   
   ConvolutionParameter conv_param = this->layer_param_.convolution_param();  
   num_rotate_ 	= conv_param.num_rotate();
+  min_angle_ 	= conv_param.min_angle();
+  max_angle_ 	= conv_param.max_angle();
   rotate_mode_ 	= conv_param.rotate_mode();
-  rotate_angle_.resize(num_rotate_);
+    
+  CHECK_GT(num_rotate_, 0) << "Filter dimensions should be greater than zero.";
+  CHECK_GE(max_angle_, min_angle_) << "Max angle should be no less than min angle.";
   
-  rotate_angle_[0] = .0;
-  for (int i = 1; i < num_rotate_; ++i) {
-	rotate_angle_[i] = rotate_angle_[i-1] + 360.0 / static_cast<Dtype>(num_rotate_);
+  rotate_angle_.resize(num_rotate_);  
+  rotate_angle_[0] = min_angle_;
+  
+  if (num_rotate_ > 1) {
+	Dtype angle_gap = (max_angle_ - min_angle_) / static_cast<Dtype>(num_rotate_ - 1);
+	for (int i = 1; i < num_rotate_; ++i) {
+		rotate_angle_[i] = rotate_angle_[i-1] + angle_gap;
+	}
   }
   
   const int filter_num 		= this->blobs_[0]->num();
   const int filter_channel 	= this->blobs_[0]->channels();
   const int filter_height 	= this->blobs_[0]->height();
-  const int filter_width 	= this->blobs_[0]->width();  
+  const int filter_width 	= this->blobs_[0]->width();
   
   weight_warp_blob_.Reshape(filter_num, filter_channel, filter_height, filter_width);
   weight_cv_mat_.resize(filter_num);
@@ -86,22 +95,20 @@ void RotateConvolutionLayer<Dtype>::compute_output_shape() {
 }
 
 template <typename Dtype>
-void RotateConvolutionLayer<Dtype>::Rotate(const cv::Mat& src, const Dtype angle, cv::Mat& dst) 
-{
-    int len = std::max(src.cols, src.rows);
-    cv::Point2f pt(len/2., len/2.);
-    cv::Mat r = cv::getRotationMatrix2D(pt, angle, 1.0);
-    cv::warpAffine(src, dst, r, cv::Size(len, len));
+void RotateConvolutionLayer<Dtype>::Rotate(const cv::Mat& src, const Dtype angle, cv::Mat& dst) {
+	int len = std::max(src.cols, src.rows);
+	cv::Point2f pt(len/2., len/2.);
+	cv::Mat r = cv::getRotationMatrix2D(pt, angle, 1.0);
+	cv::warpAffine(src, dst, r, cv::Size(len, len));
 }
 
 template <typename Dtype>
-void RotateConvolutionLayer<Dtype>::RotateFilters(const Dtype angle) 
-{
+void RotateConvolutionLayer<Dtype>::RotateFilters(const Dtype angle) {
 	for (int i = 0; i < weight_cv_mat_.size(); ++i) {
 		for (int j = 0; j < weight_cv_mat_[i].size(); ++j) 
 		{	
 			Rotate(weight_cv_mat_[i][j], angle, weight_warp_cv_mat_[i][j]);
-						
+
 			/*
 			// save filter weights
 			cv::Mat write_mat(weight_warp_cv_mat_[i][j]);
@@ -140,7 +147,7 @@ void RotateConvolutionLayer<Dtype>::Convolution_cpu(const vector<Blob<Dtype>*>& 
 
 template <typename Dtype>
 void RotateConvolutionLayer<Dtype>::MaxResponse_cpu(const vector<Blob<Dtype>*>& top) {
-  int idx_max 			= -1;
+  int idx_max 				= -1;
   double max_response_norm 	= .0;
 
   // return the maximum response of rotational filters
@@ -153,7 +160,7 @@ void RotateConvolutionLayer<Dtype>::MaxResponse_cpu(const vector<Blob<Dtype>*>& 
 	}
 	
 	if (response_norm > max_response_norm) {
-		idx_max 		= r;
+		idx_max 			= r;
 		max_response_norm 	= response_norm;
 	}	
   }
