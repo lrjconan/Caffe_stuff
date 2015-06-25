@@ -228,7 +228,7 @@ class RotateConvolutionLayer : public BaseConvolutionLayer<Dtype> {
   void MaxResponse_gpu(const vector<Blob<Dtype>*>& top);
   void MeanResponse_gpu(const vector<Blob<Dtype>*>& top);     
   
-  int num_rotate_;
+  int num_rotate_, forward_count_, rotate_gap_;
   Dtype min_angle_, max_angle_; 
   std::vector<Dtype> rotate_angle_;
   std::vector<std::vector<cv::Mat> > weight_cv_mat_;
