@@ -319,7 +319,7 @@ void RotateConvolutionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bott
 	}
   }
   else {
-	Convolution_cpu(bottom, top, (*(this->blobs_[0])).cpu_data());
+	Convolution_cpu(bottom, top, this->blobs_[0]->cpu_data());
   }  
   
   forward_count_++;
