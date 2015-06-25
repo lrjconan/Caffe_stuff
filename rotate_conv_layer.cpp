@@ -271,46 +271,58 @@ void RotateConvolutionLayer<Dtype>::MatToBlob(const std::vector<std::vector<cv::
 template <typename Dtype>
 void RotateConvolutionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) 
-{ 
-  // copy filter weights into OpenCV mat
-  BlobToMat(*(this->blobs_[0]), weight_cv_mat_); 
-
-  // forward pass with rotational filters
-  if (rotate_mode_ == ConvolutionParameter_RotateMode_MAX_NORM) {  
-	for (int r = 0; r < num_rotate_; ++r) {
-		// rotate filters
-		RotateFilters(rotate_angle_[r]);
-		Convolution_cpu(bottom, top_rotate_[r], weight_warp_blob_.cpu_data());			
-	}
-
-	// post-processing response
-	MaxResponse_cpu(top);
+{
+  bool rotate_on = false;
+  if (forward_count_ % rotate_gap_ == 0)	rotate_on = true;
+  
+  if (rotate_on) {
+  	// copy filter weights into OpenCV mat
+  	BlobToMat(*(this->blobs_[0]), weight_cv_mat_); 
   }
-  else if (rotate_mode_ == ConvolutionParameter_RotateMode_RAND) {			
-	if (this->phase_ == TRAIN) {
-		// randomly pick up a direction
-		int idx = caffe_rng_rand() % num_rotate_;
-		
-		// rotate filters
-		RotateFilters(rotate_angle_[idx]);
-		Convolution_cpu(bottom, top_rotate_[idx], weight_warp_blob_.cpu_data());		
-	}
-	else if (this->phase_ == TEST) {
+
+  if (rotate_on) {
+	// forward pass with rotational filters
+	if (rotate_mode_ == ConvolutionParameter_RotateMode_MAX_NORM) {
 		for (int r = 0; r < num_rotate_; ++r) {
 			// rotate filters
 			RotateFilters(rotate_angle_[r]);
-			Convolution_cpu(bottom, top_rotate_[r], weight_warp_blob_.cpu_data());			
+			Convolution_cpu(bottom, top_rotate_[r], weight_warp_blob_.cpu_data());
 		}
 		
-		MeanResponse_cpu(top);
-	}		
+		// post-processing response
+		MaxResponse_cpu(top);
+	}
+	else if (rotate_mode_ == ConvolutionParameter_RotateMode_RAND) {			
+		if (this->phase_ == TRAIN) {
+			// randomly pick up a direction
+			int idx = caffe_rng_rand() % num_rotate_;
+			
+			// rotate filters
+			RotateFilters(rotate_angle_[idx]);
+			Convolution_cpu(bottom, top_rotate_[idx], weight_warp_blob_.cpu_data());		
+		}
+		else if (this->phase_ == TEST) {
+			for (int r = 0; r < num_rotate_; ++r) {
+				// rotate filters
+				RotateFilters(rotate_angle_[r]);
+				Convolution_cpu(bottom, top_rotate_[r], weight_warp_blob_.cpu_data());			
+			}
+			
+			MeanResponse_cpu(top);
+		}		
+		else {
+			LOG(FATAL) << "Unknown phase.";
+		}	
+	}
 	else {
-		LOG(FATAL) << "Unknown phase.";
-	}	
+		LOG(FATAL) << "Unknown rotation mode.";
+	}
   }
   else {
-	LOG(FATAL) << "Unknown rotation mode.";
-  }
+	Convolution_cpu(bottom, top, (*(this->blobs_[0])).cpu_data());
+  }  
+  
+  forward_count_++;
 }
 
 template <typename Dtype>
