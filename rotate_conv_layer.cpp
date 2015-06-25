@@ -19,12 +19,14 @@ void RotateConvolutionLayer<Dtype>::LayerSetUp(
   BaseConvolutionLayer<Dtype>::LayerSetUp(bottom, top);
   
   // initialize member variables   
+  forward_count_ = 0;
   ConvolutionParameter conv_param = this->layer_param_.convolution_param();  
   num_rotate_ 	= conv_param.num_rotate();
   min_angle_ 	= conv_param.min_angle();
   max_angle_ 	= conv_param.max_angle();
   rotate_mode_ 	= conv_param.rotate_mode();
-    
+  rotate_gap_ 	= conv_param.rotate_gap();
+  
   CHECK_GT(num_rotate_, 0) << "Filter dimensions should be greater than zero.";
   CHECK_GE(max_angle_, min_angle_) << "Max angle should be no less than min angle.";
   
@@ -160,7 +162,7 @@ void RotateConvolutionLayer<Dtype>::MaxResponse_cpu(const vector<Blob<Dtype>*>& 
 	}
 	
 	if (response_norm > max_response_norm) {
-		idx_max 			= r;
+		idx_max 		= r;
 		max_response_norm 	= response_norm;
 	}	
   }
