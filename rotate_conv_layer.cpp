@@ -273,7 +273,10 @@ void RotateConvolutionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bott
       const vector<Blob<Dtype>*>& top) 
 {
   bool rotate_on = false;
-  if (forward_count_ % rotate_gap_ == 0)	rotate_on = true;
+  if (forward_count_ % rotate_gap_ == 0) {	
+  	rotate_on 	= true;
+  	forward_count_ 	= 0;
+  }
   
   if (rotate_on) {
   	// copy filter weights into OpenCV mat
