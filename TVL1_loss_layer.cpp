@@ -23,7 +23,7 @@ void TVL1LossLayer<Dtype>::GradientX(const Blob<Dtype> & imgs, Blob<Dtype> & gX)
   int num(imgs.num()), channels(imgs.channels()), height(imgs.height()), width(imgs.width());
 
   const Dtype * imgRowPtr	= imgs.cpu_data();
-  Dtype * gXRowPtr			= gX.mutable_cpu_data();
+  Dtype * gXRowPtr		= gX.mutable_cpu_data();
   const int rowBuffSize 	= width;
 
   for (int i = 0; i < num; ++i) {
@@ -55,33 +55,33 @@ void TVL1LossLayer<Dtype>::GradientY(const Blob<Dtype> & imgs, Blob<Dtype> & gY)
 
   const Dtype * imgPtr			= imgs.cpu_data();
   const Dtype * imgRowPtr		= imgPtr;
-  const Dtype * imgRowNextPtr	= imgPtr;
-  Dtype * gYRowPtr				= gY.mutable_cpu_data();
+  const Dtype * imgRowNextPtr		= imgPtr;
+  Dtype * gYRowPtr			= gY.mutable_cpu_data();
   
   const int rowBuffSize = width;
   const int imgBuffSize = height*width;
   imgRowNextPtr += rowBuffSize;
 
   for (int i = 0; i < num; ++i) {
-	  for (int c = 0; c < channels; ++c) {
-		  for (int h = 0; h < height-1; ++h) {
-			  for (int w = 0; w < width; ++w) 				  
-				  gYRowPtr[w] = imgRowNextPtr[w] - imgRowPtr[w];
+  	for (int c = 0; c < channels; ++c) {
+		for (int h = 0; h < height-1; ++h) {
+			for (int w = 0; w < width; ++w) 				  
+				gYRowPtr[w] = imgRowNextPtr[w] - imgRowPtr[w];
 			  
-			  gYRowPtr		+= rowBuffSize;
-			  imgRowPtr		+= rowBuffSize;
-			  imgRowNextPtr += rowBuffSize;
+			gYRowPtr	+= rowBuffSize;
+			imgRowPtr	+= rowBuffSize;
+			imgRowNextPtr	+= rowBuffSize;
 		  }
 
 		  // circular shift
-		  for (int w = 0; w < width; ++w)				  
-			gYRowPtr[w]		= imgPtr[w] - imgRowPtr[w];
+		for (int w = 0; w < width; ++w)				  
+			gYRowPtr[w]	= imgPtr[w] - imgRowPtr[w];
 			
-		  gYRowPtr		+= rowBuffSize;
-		  imgRowPtr		+= rowBuffSize;
-		  imgRowNextPtr	+= rowBuffSize;
-          imgPtr		+= imgBuffSize;
-	  }
+		gYRowPtr	+= rowBuffSize;
+		imgRowPtr	+= rowBuffSize;
+		imgRowNextPtr	+= rowBuffSize;
+          	imgPtr		+= imgBuffSize;
+	}
   }
 }
 
@@ -89,7 +89,7 @@ template <typename Dtype>
 void TVL1LossLayer<Dtype>::UpdateWeight(const Blob<Dtype> & diff_data, 
 	const Blob<Dtype> & img_dx, const Blob<Dtype> & img_dy) 
 {
-  const int count			= diff_data.count();
+  const int count		= diff_data.count();
   const Dtype* data_ptr		= diff_data.cpu_data(); 
   const Dtype* dx_ptr		= img_dx.cpu_data();  
   const Dtype* dy_ptr		= img_dy.cpu_data();  
@@ -119,9 +119,9 @@ void TVL1LossLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom, const 
 
   forward_count_ 	= 0;
   is_update_		= false;
-  lambda_			= this->layer_param_.tvl1_loss_param().lambda();
-  delta_			= this->layer_param_.tvl1_loss_param().delta();
-  tv_show_			= this->layer_param_.tvl1_loss_param().tv_show();
+  lambda_		= this->layer_param_.tvl1_loss_param().lambda();
+  delta_		= this->layer_param_.tvl1_loss_param().delta();
+  tv_show_		= this->layer_param_.tvl1_loss_param().tv_show();
   update_iter_		= this->layer_param_.tvl1_loss_param().update_iter();
 
   diff_data_.Reshape(bottom[0]->num(), bottom[0]->channels(), bottom[0]->height(), bottom[0]->width());
@@ -147,11 +147,11 @@ template <typename Dtype>
 void TVL1LossLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top) 
 {
   int count	= bottom[0]->count();  // num_ * channels_ * height_ * width_;
-  int num		= bottom[0]->num();
+  int num	= bottom[0]->num();
 
   if (forward_count_ % update_iter_ == 0) 
   {
-	is_update_ 		= true;
+	is_update_ 	= true;
 	forward_count_ 	= 0;
   } 
   
