@@ -27,7 +27,7 @@ void RotateConvolutionLayer<Dtype>::LayerSetUp(
   rotate_mode_ 	= conv_param.rotate_mode();
   rotate_gap_ 	= conv_param.rotate_gap();
   
-  CHECK_GT(num_rotate_, 0) << "Filter dimensions should be greater than zero.";
+  CHECK_GT(num_rotate_, 0) << "Number of filters should be greater than zero.";
   CHECK_GE(max_angle_, min_angle_) << "Max angle should be no less than min angle.";
   
   rotate_angle_.resize(num_rotate_);  
