@@ -259,7 +259,7 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 135 (last added: img_regression_data_param)
+// LayerParameter next available layer-specific ID: 136 (last added: tvl1_loss_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -336,9 +336,10 @@ message LayerParameter {
   optional SPPParameter spp_param = 132;
   optional SliceParameter slice_param = 126;
   optional TanHParameter tanh_param = 127;
+  optional TVL1LossParameter tvl1_loss_param = 135;
   optional ThresholdParameter threshold_param = 128;
   optional WindowDataParameter window_data_param = 129;
-  optional ImageRegressionDataParameter image_regression_data_param = 135;
+  optional ImageRegressionDataParameter image_regression_data_param = 134;
 }
 
 // Message that stores parameters used to apply transformation
@@ -446,14 +447,12 @@ message ConvolutionParameter {
     MAX_NORM = 0;
     RAND = 1;
   }   
-  
   optional bool init_from_file = 16 [default = false];
   optional string file_name = 17;
   optional uint32 num_rotate = 18;
-  optional uint32 rotate_gap = 19;
-  optional float min_angle = 20;
-  optional float max_angle = 21;
-  optional RotateMode rotate_mode = 22 [default = RAND];
+  optional float min_angle = 19;
+  optional float max_angle = 20;
+  optional RotateMode rotate_mode = 21 [default = RAND];
 }
 
 message DataParameter {
@@ -557,6 +556,13 @@ message HingeLossParameter {
   }
   // Specify the Norm to use L1 or L2
   optional Norm norm = 1 [default = L1];
+}
+
+message TVL1LossParameter {
+	optional float lambda 		= 1;
+	optional float delta 		= 2;
+	optional bool tv_show 		= 3 [default = true];
+	optional uint32 update_iter = 4 [default = 100];
 }
 
 message ImageDataParameter {
