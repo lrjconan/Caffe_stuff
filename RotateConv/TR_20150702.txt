@@ -1,2 +1,0 @@
-
-Learning Rate: 1.0e-4
